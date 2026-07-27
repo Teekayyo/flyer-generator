@@ -7,117 +7,104 @@ canvas.height = 1350;
 const template = new Image();
 template.src = "template.png";
 
-const photoInput = document.getElementById("photoInput");
 const nameInput = document.getElementById("nameInput");
+const photoInput = document.getElementById("photoInput");
+const zoomSlider = document.getElementById("zoom");
 const downloadBtn = document.getElementById("downloadBtn");
 const resetBtn = document.getElementById("resetBtn");
-const zoomSlider = document.getElementById("zoom");
-
-let uploadedImage = null;
 
 const FRAME = {
-    x:315,
-    y:250,
-    width:450,
-    height:520
+    x: 315,
+    y: 250,
+    width: 450,
+    height: 520
 };
 
-let photo = {
-    x:FRAME.x,
-    y:FRAME.y,
-    width:FRAME.width,
-    height:FRAME.height,
-    scale:1
+const NAME_BOX = {
+    x: 160,
+    y: 705,
+    width: 760,
+    height: 80
 };
 
-let dragging=false;
+let photo = null;
 
-let dragStart={
-    x:0,
-    y:0
+let state = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    zoom: 1,
+    dragging: false,
+    lastX: 0,
+    lastY: 0
 };
 
-photoInput.addEventListener("change",loadPhoto);
+template.onload = draw;
 
-nameInput.addEventListener("input",draw);
+photoInput.addEventListener("change", loadPhoto);
+
+nameInput.addEventListener("input", draw);
 
 zoomSlider.addEventListener("input",function(){
 
-photo.scale=parseFloat(this.value);
+if(!photo) return;
+
+const oldZoom=state.zoom;
+
+const newZoom=Number(this.value);
+
+const centreX=state.x+(state.width*oldZoom)/2;
+
+const centreY=state.y+(state.height*oldZoom)/2;
+
+state.zoom=newZoom;
+
+state.x=centreX-(state.width*newZoom)/2;
+
+state.y=centreY-(state.height*newZoom)/2;
 
 draw();
 
 });
 
-resetBtn.addEventListener("click",function(){
+resetBtn.addEventListener("click", function () {
 
-photo.x=FRAME.x;
+    if (!photo) return;
 
-photo.y=FRAME.y;
+    fitPhoto();
 
-photo.scale=parseFloat(zoomSlider.value);
+    zoomSlider.value = 1;
 
-zoomSlider.value=1;
+    state.zoom = 1;
 
-draw();
+    draw();
 
 });
 
-downloadBtn.addEventListener("click",downloadFlyer);
-
-canvas.addEventListener("mousedown",startDrag);
-
-canvas.addEventListener("mousemove",dragImage);
-
-canvas.addEventListener("mouseup",stopDrag);
-
-canvas.addEventListener("mouseleave",stopDrag);
-
-canvas.addEventListener("touchstart",touchStart,{passive:false});
-
-canvas.addEventListener("touchmove",touchMove,{passive:false});
-
-canvas.addEventListener("touchend",touchEnd);
-
-template.onload=draw;
+downloadBtn.addEventListener("click", downloadFlyer);
 
 function loadPhoto(e){
 
 const file=e.target.files[0];
 
-if(!file)return;
+if(!file) return;
 
 const reader=new FileReader();
 
 reader.onload=function(ev){
 
-uploadedImage=new Image();
+photo=new Image();
 
-uploadedImage.onload=function(){
+photo.onload=function(){
 
-const ratio=uploadedImage.width/uploadedImage.height;
-
-photo.width=FRAME.width;
-
-photo.height=FRAME.width/ratio;
-
-if(photo.height<FRAME.height){
-
-photo.height=FRAME.height;
-
-photo.width=FRAME.height*ratio;
-
-}
-
-photo.x=FRAME.x+(FRAME.width-photo.width)/2;
-
-photo.y=FRAME.y+(FRAME.height-photo.height)/2;
+fitPhoto();
 
 draw();
 
 };
 
-uploadedImage.src=ev.target.result;
+photo.src=ev.target.result;
 
 };
 
@@ -125,88 +112,23 @@ reader.readAsDataURL(file);
 
 }
 
-function startDrag(e){
+function fitPhoto(){
 
-if(!uploadedImage)return;
+const scale=Math.max(
 
-dragging=true;
+FRAME.width/photo.width,
 
-dragStart.x=e.offsetX;
+FRAME.height/photo.height
 
-dragStart.y=e.offsetY;
+);
 
-}
+state.width=photo.width*scale;
 
-function dragImage(e){
+state.height=photo.height*scale;
 
-if(!dragging)return;
+state.x=FRAME.x+(FRAME.width-state.width)/2;
 
-const dx=e.offsetX-dragStart.x;
-
-const dy=e.offsetY-dragStart.y;
-
-photo.x+=dx;
-
-photo.y+=dy;
-
-dragStart.x=e.offsetX;
-
-dragStart.y=e.offsetY;
-
-draw();
-
-}
-
-function stopDrag(){
-
-dragging=false;
-
-}
-
-function touchStart(e){
-
-if(!uploadedImage)return;
-
-e.preventDefault();
-
-dragging=true;
-
-const rect=canvas.getBoundingClientRect();
-
-dragStart.x=
-(e.touches[0].clientX-rect.left)
-* (canvas.width / rect.width);
-dragStart.y=
-(e.touches[0].clientY-rect.top)
-* (canvas.height / rect.height);
-
-}
-
-function touchMove(e){
-
-e.preventDefault();
-    
-if(!dragging || !uploadedImage) return;
-
-
-const rect = canvas.getBoundingClientRect();
-
-const x = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width);
-const y = (e.touches[0].clientY - rect.top) * (canvas.height / rect.height);
-
-photo.x += x - dragStart.x;
-photo.y += y - dragStart.y;
-
-dragStart.x = x;
-dragStart.y = y;
-
-draw();
-
-}
-
-function touchEnd(){
-
-dragging=false;
+state.y=FRAME.y+(FRAME.height-state.height)/2;
 
 }
 
@@ -215,6 +137,8 @@ function draw(){
 ctx.clearRect(0,0,canvas.width,canvas.height);
 
 ctx.drawImage(template,0,0,canvas.width,canvas.height);
+
+if(photo){
 
 ctx.save();
 
@@ -234,25 +158,23 @@ FRAME.height
 
 ctx.clip();
 
-if(uploadedImage){
-
 ctx.drawImage(
 
-uploadedImage,
+photo,
 
-photo.x,
+state.x,
 
-photo.y,
+state.y,
 
-photo.width*photo.scale,
+state.width*state.zoom,
 
-photo.height*photo.scale
+state.height*state.zoom
 
 );
 
-}
-
 ctx.restore();
+
+}
 
 drawName();
 
@@ -264,34 +186,163 @@ const text=nameInput.value.trim();
 
 if(text==="") return;
 
-let fontSize=54;
+let size=50;
 
-ctx.fillStyle="#ffffff";
-ctx.textAlign="center";
-ctx.textBaseline="middle";
-ctx.font="bold "+fontSize+"px Arial";
+ctx.font="bold "+size+"px Arial";
 
-while(ctx.measureText(text).width>640 && fontSize>22){
+while(ctx.measureText(text).width>NAME_BOX.width-40 && size>20){
 
-fontSize--;
+size--;
 
-ctx.font="bold "+fontSize+"px Arial";
+ctx.font="bold "+size+"px Arial";
 
 }
 
-ctx.shadowBlur=0;
+ctx.fillStyle="#ffffff";
+
+ctx.fillRect(
+
+NAME_BOX.x,
+
+NAME_BOX.y,
+
+NAME_BOX.width,
+
+NAME_BOX.height
+
+);
+
+ctx.fillStyle="#000000";
+
+ctx.textAlign="center";
+
+ctx.textBaseline="middle";
 
 ctx.fillText(
 
 text,
 
-540,
+NAME_BOX.x+NAME_BOX.width/2,
 
-690
+NAME_BOX.y+NAME_BOX.height/2
 
 );
 
-ctx.shadowBlur=0;
+}
+
+canvas.addEventListener("mousedown",startDrag);
+
+canvas.addEventListener("mousemove",drag);
+
+canvas.addEventListener("mouseup",stopDrag);
+
+canvas.addEventListener("mouseleave",stopDrag);
+
+function startDrag(e){
+
+if(!photo) return;
+
+state.dragging=true;
+
+state.lastX=e.offsetX;
+
+state.lastY=e.offsetY;
+
+}
+
+function drag(e){
+
+if(!state.dragging || !photo) return;
+
+const dx=e.offsetX-state.lastX;
+const dy=e.offsetY-state.lastY;
+
+state.x+=dx;
+state.y+=dy;
+
+const drawWidth=state.width*state.zoom;
+const drawHeight=state.height*state.zoom;
+
+const minX=FRAME.x+FRAME.width-drawWidth;
+const maxX=FRAME.x;
+
+const minY=FRAME.y+FRAME.height-drawHeight;
+const maxY=FRAME.y;
+
+state.x=Math.max(minX,Math.min(maxX,state.x));
+state.y=Math.max(minY,Math.min(maxY,state.y));
+
+state.lastX=e.offsetX;
+state.lastY=e.offsetY;
+
+draw();
+
+}
+
+function stopDrag(){
+
+state.dragging=false;
+
+}
+
+
+canvas.addEventListener("touchstart", touchStart, { passive: false });
+canvas.addEventListener("touchmove", touchMove, { passive: false });
+canvas.addEventListener("touchend", touchEnd);
+
+function touchStart(e){
+
+if(!photo) return;
+
+e.preventDefault();
+
+state.dragging=true;
+
+const rect=canvas.getBoundingClientRect();
+
+state.lastX=(e.touches[0].clientX-rect.left)*(canvas.width/rect.width);
+
+state.lastY=(e.touches[0].clientY-rect.top)*(canvas.height/rect.height);
+
+}
+
+function touchMove(e){
+
+if(!state.dragging) return;
+
+e.preventDefault();
+
+const rect=canvas.getBoundingClientRect();
+
+const x=(e.touches[0].clientX-rect.left)*(canvas.width/rect.width);
+
+const y=(e.touches[0].clientY-rect.top)*(canvas.height/rect.height);
+
+state.x+=x-state.lastX;
+state.y+=y-state.lastY;
+
+const drawWidth=state.width*state.zoom;
+const drawHeight=state.height*state.zoom;
+
+// Prevent white gaps in the frame
+const minX=FRAME.x+FRAME.width-drawWidth;
+const maxX=FRAME.x;
+const minY=FRAME.y+FRAME.height-drawHeight;
+const maxY=FRAME.y;
+
+state.x=Math.min(maxX,Math.max(minX,state.x));
+state.y=Math.min(maxY,Math.max(minY,state.y));
+
+state.lastX=x;
+state.lastY=y;
+
+draw();
+
+}
+
+function touchEnd(){
+
+state.dragging=false;
 
 }
 
@@ -301,7 +352,7 @@ draw();
 
 const link=document.createElement("a");
 
-link.download="30th Anniversary Flyer.png";
+link.download="flyer.png";
 
 link.href=canvas.toDataURL("image/png",1);
 
@@ -309,26 +360,11 @@ link.click();
 
 }
 
-canvas.addEventListener("dblclick",function(){
-
-photo.x=FRAME.x;
-
-photo.y=FRAME.y;
-
-photo.scale=1;
-
-zoomSlider.value=1;
+window.onload=function(){
 
 draw();
-
-});
-
-window.addEventListener("resize",draw);
-
-template.onerror=function(){
-
-alert("template.png could not be loaded.");
 
 };
 
-draw();
+
+
