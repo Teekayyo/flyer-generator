@@ -1,12 +1,150 @@
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
 body{
+font-family:Arial,Helvetica,sans-serif;
+background:#eef2f7;
+padding:30px;
+}
 
-font-family:Arial;
+.container{
+max-width:1200px;
+margin:auto;
+display:grid;
+grid-template-columns:350px 1fr;
+gap:30px;
+}
 
-background:#ececec;
-
-text-align:center;
-
+.controls{
+background:#fff;
 padding:20px;
+border-radius:12px;
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+h1{
+margin-bottom:10px;
+font-size:28px;
+}
+
+.subtitle{
+margin-bottom:25px;
+color:#555;
+line-height:1.5;
+}
+
+.upload{
+display:block;
+background:#0077ff;
+color:white;
+padding:15px;
+border-radius:8px;
+text-align:center;
+cursor:pointer;
+margin-bottom:20px;
+font-weight:bold;
+}
+
+.upload input{
+display:none;
+}
+
+input[type=text]{
+width:100%;
+padding:14px;
+font-size:18px;
+margin-bottom:20px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.slider{
+margin-bottom:20px;
+}
+
+.slider label{
+display:block;
+margin-bottom:8px;
+font-weight:bold;
+}
+
+.slider input{
+width:100%;
+}
+
+.buttons{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+button{
+padding:15px;
+font-size:17px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+transition:.2s;
+}
+
+button:hover{
+transform:scale(1.02);
+}
+
+#downloadBtn{
+background:#18a558;
+color:white;
+}
+
+#resetBtn{
+background:#ff9800;
+color:white;
+}
+
+.canvasWrapper{
+display:flex;
+justify-content:center;
+align-items:flex-start;
+}
+
+canvas{
+width:100%;
+max-width:700px;
+background:white;
+box-shadow:0 15px 40px rgba(0,0,0,.18);
+border-radius:12px;
+cursor:grab;
+}
+
+canvas:active{
+cursor:grabbing;
+}
+
+.tips{
+margin-top:20px;
+background:#fff;
+padding:20px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.tips ol{
+padding-left:18px;
+margin-top:10px;
+}
+
+.tips li{
+margin-bottom:10px;
+}
+
+@media(max-width:900px){
+
+.container{
+
+grid-template-columns:1fr;
 
 }
 
@@ -14,34 +152,6 @@ canvas{
 
 max-width:100%;
 
-border:1px solid #999;
-
-background:white;
-
 }
-
-input{
-
-padding:10px;
-
-font-size:18px;
-
-width:300px;
-
-max-width:90%;
-
-margin:5px;
-
-}
-
-button{
-
-padding:12px 20px;
-
-font-size:18px;
-
-margin:5px;
-
-cursor:pointer;
 
 }
