@@ -1,8 +1,36 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+// Set canvas internal resolution
 canvas.width = 1080;
 canvas.height = 1350;
+
+// Make canvas responsive
+function resizeCanvas() {
+    const container = canvas.parentElement || document.body;
+    const containerWidth = container.clientWidth || window.innerWidth;
+    const containerHeight = container.clientHeight || window.innerHeight;
+    
+    // Calculate the scale to fit the canvas in the viewport
+    const scaleX = containerWidth / canvas.width;
+    const scaleY = containerHeight / canvas.height;
+    const scale = Math.min(scaleX, scaleY, 0.95); // 0.95 for some padding
+    
+    // Apply the scale
+    canvas.style.width = (canvas.width * scale) + 'px';
+    canvas.style.height = (canvas.height * scale) + 'px';
+    canvas.style.maxWidth = '100%';
+    canvas.style.maxHeight = '100%';
+    canvas.style.display = 'block';
+    canvas.style.margin = 'auto';
+}
+
+// Call resize on load and window resize
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('load', function() {
+    resizeCanvas();
+    draw();
+});
 
 const template = new Image();
 template.src = "template.png";
@@ -365,9 +393,3 @@ link.href=canvas.toDataURL("image/png",1);
 link.click();
 
 }
-
-window.onload=function(){
-
-draw();
-
-};
