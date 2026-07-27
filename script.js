@@ -184,9 +184,10 @@ dragStart.y=
 
 function touchMove(e){
 
+e.preventDefault();
+    
 if(!dragging || !uploadedImage) return;
 
-e.preventDefault();
 
 const rect = canvas.getBoundingClientRect();
 
