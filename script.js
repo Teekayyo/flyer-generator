@@ -185,31 +185,50 @@ function drawName(){
 const text=nameInput.value.trim();
 if(text==="") return;
 
-// Draw black background first
-ctx.fillStyle = "#000000";
-ctx.fillRect(
-    NAME_BOX.x - 10,
-    NAME_BOX.y - 5,
-    NAME_BOX.width + 20,
-    NAME_BOX.height + 10
-);
+// Calculate smaller dimensions (10% less from each side)
+const paddingReduction = 0.10; // 10%
+const reducedWidth = NAME_BOX.width * (1 - paddingReduction * 2);
+const reducedHeight = NAME_BOX.height * (1 - paddingReduction * 2);
+const offsetX = NAME_BOX.width * paddingReduction;
+const offsetY = NAME_BOX.height * paddingReduction;
 
+const ovalX = NAME_BOX.x + offsetX;
+const ovalY = NAME_BOX.y + offsetY;
+const ovalWidth = reducedWidth;
+const ovalHeight = reducedHeight;
+
+// Draw oval (ellipse) background
+ctx.save();
+ctx.beginPath();
+ctx.ellipse(
+    ovalX + ovalWidth/2,
+    ovalY + ovalHeight/2,
+    ovalWidth/2,
+    ovalHeight/2,
+    0,
+    0,
+    Math.PI * 2
+);
+ctx.fillStyle = "#000000";
+ctx.fill();
+ctx.restore();
+
+// Draw text
 let size=50;
 ctx.font="bold "+size+"px Arial";
 
-while(ctx.measureText(text).width>NAME_BOX.width-40 && size>20){
+while(ctx.measureText(text).width > reducedWidth - 40 && size > 20){
     size--;
     ctx.font="bold "+size+"px Arial";
 }
 
-// Draw white text
 ctx.fillStyle = "#ffffff";
 ctx.textAlign="center";
 ctx.textBaseline="middle";
 ctx.fillText(
     text,
-    NAME_BOX.x + NAME_BOX.width/2,
-    NAME_BOX.y + NAME_BOX.height/2
+    ovalX + ovalWidth/2,
+    ovalY + ovalHeight/2
 );
 }
 
@@ -225,7 +244,6 @@ function startDrag(e){
 
 if(!photo) return;
 
-// Prevent default to stop page scrolling
 e.preventDefault();
 
 state.dragging=true;
@@ -240,7 +258,6 @@ function drag(e){
 
 if(!state.dragging || !photo) return;
 
-// Prevent default to stop page scrolling
 e.preventDefault();
 
 const dx=e.offsetX-state.lastX;
