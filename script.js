@@ -220,25 +220,51 @@ const reducedHeight = NAME_BOX.height * (1 - paddingReduction * 2);
 const offsetX = NAME_BOX.width * paddingReduction;
 const offsetY = NAME_BOX.height * paddingReduction;
 
-const ovalX = NAME_BOX.x + offsetX;
-const ovalY = NAME_BOX.y + offsetY;
-const ovalWidth = reducedWidth;
-const ovalHeight = reducedHeight;
+const rectX = NAME_BOX.x + offsetX;
+const rectY = NAME_BOX.y + offsetY;
+const rectWidth = reducedWidth;
+const rectHeight = reducedHeight;
 
-// Draw oval (ellipse) background
+// Create irregular rectangular shape with cut corners (like a badge/plate)
 ctx.save();
 ctx.beginPath();
-ctx.ellipse(
-    ovalX + ovalWidth/2,
-    ovalY + ovalHeight/2,
-    ovalWidth/2,
-    ovalHeight/2,
-    0,
-    0,
-    Math.PI * 2
-);
+
+// Start from top-left with a slight cut
+const cutSize = 15; // Size of corner cuts
+
+// Top edge with cut
+ctx.moveTo(rectX + cutSize, rectY);
+ctx.lineTo(rectX + rectWidth - cutSize, rectY);
+
+// Top-right corner cut
+ctx.lineTo(rectX + rectWidth, rectY + cutSize);
+
+// Right edge
+ctx.lineTo(rectX + rectWidth, rectY + rectHeight - cutSize);
+
+// Bottom-right corner cut
+ctx.lineTo(rectX + rectWidth - cutSize, rectY + rectHeight);
+
+// Bottom edge
+ctx.lineTo(rectX + cutSize, rectY + rectHeight);
+
+// Bottom-left corner cut
+ctx.lineTo(rectX, rectY + rectHeight - cutSize);
+
+// Left edge
+ctx.lineTo(rectX, rectY + cutSize);
+
+// Back to top
+ctx.closePath();
+
 ctx.fillStyle = "#000000";
 ctx.fill();
+
+// Add a subtle inner border effect (optional)
+ctx.strokeStyle = "rgba(255,255,255,0.3)";
+ctx.lineWidth = 2;
+ctx.stroke();
+
 ctx.restore();
 
 // Draw text
@@ -255,8 +281,8 @@ ctx.textAlign="center";
 ctx.textBaseline="middle";
 ctx.fillText(
     text,
-    ovalX + ovalWidth/2,
-    ovalY + ovalHeight/2
+    rectX + rectWidth/2,
+    rectY + rectHeight/2
 );
 }
 
