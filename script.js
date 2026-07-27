@@ -173,31 +173,31 @@ dragging=true;
 
 const rect=canvas.getBoundingClientRect();
 
-dragStart.x=e.touches[0].clientX-rect.left;
-
-dragStart.y=e.touches[0].clientY-rect.top;
+dragStart.x=
+(e.touches[0].clientX-rect.left)
+* (canvas.width / rect.width);
+dragStart.y=
+(e.touches[0].clientY-rect.top)
+* (canvas.height / rect.height);
 
 }
 
 function touchMove(e){
 
-if(!dragging)return;
+if(!dragging || !uploadedImage) return;
 
 e.preventDefault();
 
-const rect=canvas.getBoundingClientRect();
+const rect = canvas.getBoundingClientRect();
 
-const x=e.touches[0].clientX-rect.left;
+const x = (e.touches[0].clientX - rect.left) * (canvas.width / rect.width);
+const y = (e.touches[0].clientY - rect.top) * (canvas.height / rect.height);
 
-const y=e.touches[0].clientY-rect.top;
+photo.x += x - dragStart.x;
+photo.y += y - dragStart.y;
 
-photo.x+=x-dragStart.x;
-
-photo.y+=y-dragStart.y;
-
-dragStart.x=x;
-
-dragStart.y=y;
+dragStart.x = x;
+dragStart.y = y;
 
 draw();
 
