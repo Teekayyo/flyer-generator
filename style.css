@@ -113,6 +113,7 @@ align-items:flex-start;
 canvas{
 width:100%;
 max-width:700px;
+height:auto;
 background:white;
 box-shadow:0 15px 40px rgba(0,0,0,.18);
 border-radius:12px;
