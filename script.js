@@ -278,8 +278,7 @@ ctx.font="bold "+fontSize+"px Arial";
 
 }
 
-ctx.shadowColor="rgba(0,0,0,.35)";
-ctx.shadowBlur=8;
+ctx.shadowBlur=0;
 
 ctx.fillText(
 
@@ -287,7 +286,7 @@ text,
 
 540,
 
-817
+785
 
 );
 
