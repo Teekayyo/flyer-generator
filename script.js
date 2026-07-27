@@ -183,51 +183,34 @@ drawName();
 function drawName(){
 
 const text=nameInput.value.trim();
-
 if(text==="") return;
 
-let size=50;
+// Draw black background first
+ctx.fillStyle = "#000000";
+ctx.fillRect(
+    NAME_BOX.x - 10,
+    NAME_BOX.y - 5,
+    NAME_BOX.width + 20,
+    NAME_BOX.height + 10
+);
 
+let size=50;
 ctx.font="bold "+size+"px Arial";
 
 while(ctx.measureText(text).width>NAME_BOX.width-40 && size>20){
-
-size--;
-
-ctx.font="bold "+size+"px Arial";
-
+    size--;
+    ctx.font="bold "+size+"px Arial";
 }
 
-ctx.fillStyle="#ffffff";
-
-ctx.fillRect(
-
-NAME_BOX.x,
-
-NAME_BOX.y,
-
-NAME_BOX.width,
-
-NAME_BOX.height
-
-);
-
-ctx.fillStyle="#000000";
-
+// Draw white text
+ctx.fillStyle = "#ffffff";
 ctx.textAlign="center";
-
 ctx.textBaseline="middle";
-
 ctx.fillText(
-
-text,
-
-NAME_BOX.x+NAME_BOX.width/2,
-
-NAME_BOX.y+NAME_BOX.height/2
-
+    text,
+    NAME_BOX.x + NAME_BOX.width/2,
+    NAME_BOX.y + NAME_BOX.height/2
 );
-
 }
 
 canvas.addEventListener("mousedown",startDrag);
@@ -242,6 +225,9 @@ function startDrag(e){
 
 if(!photo) return;
 
+// Prevent default to stop page scrolling
+e.preventDefault();
+
 state.dragging=true;
 
 state.lastX=e.offsetX;
@@ -253,6 +239,9 @@ state.lastY=e.offsetY;
 function drag(e){
 
 if(!state.dragging || !photo) return;
+
+// Prevent default to stop page scrolling
+e.preventDefault();
 
 const dx=e.offsetX-state.lastX;
 const dy=e.offsetY-state.lastY;
@@ -365,6 +354,3 @@ window.onload=function(){
 draw();
 
 };
-
-
-
